@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Web Live TV</title>
+    <!-- Clappr Video Player SDK -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
+    <style>
+        body { background-color: #121212; color: #fff; font-family: sans-serif; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        #player { width: 100%; max-width: 800px; height: 450px; margin-bottom: 20px; }
+        .channel-list { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; max-width: 800px; }
+        .channel-btn { background: #1e1e1e; border: 1px solid #333; color: white; padding: 10px 15px; border-radius: 5px; cursor: pointer; transition: 0.2s; }
+        .channel-btn:hover { background: #ff0055; }
+    </style>
+</head>
+<body>
+
+    <h2>🎥 লাইভ টিভি স্ট্রিম</h2>
+    <div id="player"></div>
+
+    <h3>চ্যানেল লিস্ট:</h3>
+    <div class="channel-list" id="buttons"></div>
+
+    <script>
+        var player = new Clappr.Player({
+            source: "https://owrcovcrpy.gpcdn.net/bpk-tv/1701/output/index.m3u8", // ডিফল্ট Jamuna TV
+            parentId: "#player",
+            autoPlay: true,
+            width: '100%',
+            height: '100%'
+        });
+
+        // M3U ফাইল থেকে চ্যানেল পড়ার স্ক্রিপ্ট
+        const m3uUrl = "https://raw.githubusercontent.com/azizulusct-art/Fifa/refs/heads/main/%E0%A6%85%E0%A6%A8%E0%A6%B8%E0%A7%82%E0%A6%AF%E0%A6%BC%E0%A6%BE%20%F0%9F%8C%B8.m3u";
+
+        fetch(m3uUrl)
+            .then(response => response.text())
+            .then(data => {
+                const lines = data.split('\n');
+                const buttonsContainer = document.getElementById('buttons');
+                let currentName = '';
+
+                lines.forEach(line => {
+                    line = line.trim();
+                    if (line.startsWith('#EXTINF:')) {
+                        currentName = line.split(',')[1] || 'Unknown Channel';
+                    } else if (line.startsWith('http://') || line.startsWith('https://')) {
+                        if (currentName) {
+                            let btn = document.createElement('button');
+                            btn.className = 'channel-btn';
+                            btn.innerText = currentName;
+                            let streamUrl = line;
+                            btn.onclick = () => {
+                                player.load(streamUrl);
+                            };
+                            buttonsContainer.appendChild(btn);
+                            currentName = '';
+                        }
+                    }
+                });
+            });
+    </script>
+</body>
+</html>
